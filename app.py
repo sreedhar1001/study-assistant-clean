@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import logging
 import uuid
 from datetime import datetime
 from urllib.parse import quote_plus
@@ -14,6 +15,9 @@ from agents import rag, supervisor
 from server import generate_answer, generate_daily_question, search_discovery_section
 from study_assistant.config import load_config
 from study_assistant.services.study_plans import generate_plan_answer
+
+
+logger = logging.getLogger(__name__)
 
 
 st.set_page_config(
@@ -79,6 +83,35 @@ def get_config() -> dict[str, str]:
         # Local Streamlit runs may have no secrets.toml.
         pass
     return config
+
+
+def tavily_error_message(error: Exception) -> str:
+    """Return a safe, useful provider error without exposing request details."""
+    error_name = type(error).__name__
+    status_code = getattr(error, "status_code", None)
+    if not isinstance(status_code, int):
+        status_code = getattr(getattr(error, "response", None), "status_code", None)
+    if not isinstance(status_code, int):
+        status_code = None
+
+    # Log only the exception type and numeric HTTP status. Never log its text,
+    # which can contain request metadata or other sensitive provider details.
+    logger.warning("Tavily request failed (type=%s, status=%s)", error_name, status_code)
+
+    if isinstance(error, ValueError):
+        return str(error)
+    name = error_name.casefold()
+    if status_code in (401, 403) or name in {"invalidapikeyerror", "missingapikeyerror"}:
+        return "Tavily rejected the API key. Check TAVILY_API_KEY in Streamlit Cloud → App settings → Secrets, then reboot the app."
+    if status_code == 429 or "usagelimit" in name or "keylesslimit" in name:
+        return "Tavily's rate limit or account quota was reached. Check your Tavily account and try again later."
+    if status_code is not None and status_code >= 500:
+        return f"Tavily returned a temporary server error (HTTP {status_code}). Try again later."
+    if isinstance(error, (TimeoutError, ConnectionError)) or "timeout" in name:
+        return "The connection to Tavily timed out. Check the app's outbound connection and try again."
+    if "connect" in name or "connection" in name or "network" in name:
+        return "The app could not connect to Tavily. Check the app's outbound connection and try again."
+    return f"Tavily request failed ({error_name}). Check the Streamlit Cloud app logs for deployment or network details."
 
 
 def init_state() -> None:
@@ -294,7 +327,7 @@ def show_discovery(kind: str, title: str, description: str, query: str) -> None:
             with st.spinner("Searching the past seven days…"):
                 st.session_state.discovery_cache[cache_key] = search_discovery_section(kind, topic, config)
         except Exception as error:
-            st.error(str(error) if isinstance(error, ValueError) else "Could not reach Tavily. Try again later.")
+            st.error(tavily_error_message(error))
     result = st.session_state.discovery_cache.get(cache_key)
     if result:
         if not result.get("results"):
@@ -418,7 +451,7 @@ elif page == "Kids learning":
             with st.spinner("Searching for an age-matched question and learning sources…"):
                 st.session_state.daily_cache[today_key] = generate_daily_question(grade, subject, config)
         except Exception as error:
-            st.error(str(error) if isinstance(error, ValueError) else "Could not reach Tavily. Try again later.")
+            st.error(tavily_error_message(error))
     daily = st.session_state.daily_cache.get(today_key)
     if daily:
         st.markdown(f"**{daily['subject']} · Standard {grade} · {daily['topic']}**\n\n{daily['question']}")
