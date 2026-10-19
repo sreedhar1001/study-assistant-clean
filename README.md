@@ -34,6 +34,24 @@ Choose English, Hindi, or Telugu from the answer-language menu. The selection co
 
 Each chat answer also has a “Search DuckDuckGo for more” button. It opens a separate DuckDuckGo search only when selected and sends the question, not attached file contents.
 
+## Deploy on Streamlit Community Cloud
+
+The Streamlit entry point is `app.py`. It provides the Study Assistant, Kids Learning, Higher Education, and Technology & Research sections while reusing the existing tutor, quiz, planner, PDF retrieval, and Tavily search code.
+
+1. In Streamlit Community Cloud, create an app from this GitHub repository and choose the `main` branch.
+2. Set **Main file path** to `app.py`.
+3. Add provider credentials under the app's **Settings → Secrets**. Use your own values in the dashboard; do not commit real credentials:
+
+   ```toml
+   TAVILY_API_KEY = "your-tavily-api-key"
+   GROQ_API_KEY = "your-groq-api-key"
+   GROQ_MODEL = "openai/gpt-oss-20b"
+   ```
+
+4. Deploy or reboot the app after adding the secrets.
+
+The Streamlit version keeps chat history and PDF indexes in the current Streamlit session. A reload or server restart may clear them. PDF passages are sent to an external provider only after the learner checks the consent box. Streamlit does not use the localhost page's browser voice controls.
+
 ## Deploy on Render
 
 This repository includes a Render Blueprint for the Python web service. It runs `server.py`, serves the website and API together, and checks `/api/config` for service health. The server binds to `0.0.0.0` and uses Render's `PORT` environment variable.
