@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: still-study-space
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python server.py
+    healthCheckPath: /api/config
+    envVars:
+      - key: TAVILY_API_KEY
+        sync: false

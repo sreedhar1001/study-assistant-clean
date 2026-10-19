@@ -1,0 +1,4 @@
+tavily-python
+streamlit>=1.51,<2
+fastembed
+pypdf

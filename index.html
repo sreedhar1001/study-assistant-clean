@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f8f9f7">
+  <meta name="description" content="A friendly study assistant for clear explanations, practice, and learning at every level.">
+  <title>Study Assistant — learn at your pace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="live.css?v=course-rag-2">
+  <script src="app.js?v=course-rag-2" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to study space</a>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Study navigation">
+      <a class="brand" href="#main" aria-label="Study Assistant home"><span class="brand-icon" aria-hidden="true">✳</span><span>Study Assistant</span></a>
+      <button class="new-chat" id="new-chat"><span aria-hidden="true">＋</span> New study session</button>
+      <div class="sidebar-label">YOUR SPACE</div>
+      <nav class="side-nav" aria-label="Your study space">
+        <a class="side-link" href="#kids-learning"><span class="nav-icon" aria-hidden="true">✿</span> Kids learning</a>
+        <a class="side-link active" href="#main"><span class="nav-icon" aria-hidden="true">◌</span> Study assistant</a>
+        <a class="side-link" href="#higher-learning"><span class="nav-icon" aria-hidden="true">⌘</span> Higher education</a>
+        <a class="side-link" href="#technology-discovery"><span class="nav-icon" aria-hidden="true">✧</span> Technology &amp; research</a>
+        <a class="side-link" href="#quick-start"><span class="nav-icon" aria-hidden="true">⌁</span> Explore a topic</a>
+      </nav>
+      <section class="sidebar-course" aria-label="Course material">
+        <div class="sidebar-label">COURSE MATERIAL</div>
+        <label class="pdf-dropzone" id="pdf-dropzone" for="course-pdf-input" tabindex="0">
+          <input class="visually-hidden" id="course-pdf-input" type="file" accept="application/pdf,.pdf">
+          <span class="pdf-drop-icon" aria-hidden="true">↑</span>
+          <span class="pdf-drop-title">Drag and drop file here</span>
+          <small>Limit 200MB per file · PDF</small>
+        </label>
+        <p class="pdf-status" id="course-pdf-status" aria-live="polite"></p>
+        <label class="pdf-consent" id="pdf-consent-wrap" hidden><input id="pdf-consent" type="checkbox" disabled> Allow selected passages and my question to be sent to the answer provider</label>
+        <button class="remove-pdf" id="remove-pdf" type="button" hidden>Remove PDF</button>
+      </section>
+      <details class="sidebar-agent" open>
+        <summary class="sidebar-label">STUDY AGENT</summary>
+        <select id="agent-select" aria-label="Choose a study agent">
+          <option value="Automatic">Automatic</option>
+          <option value="Tutor Agent">Tutor Agent</option>
+          <option value="Quiz Agent">Quiz Agent</option>
+          <option value="Study Planner Agent">Study Planner Agent</option>
+        </select>
+        <div id="quiz-agent-settings" class="agent-settings" hidden>
+          <label for="quiz-format">Quiz format</label>
+          <select id="quiz-format"><option>Mixed</option><option>Multiple choice</option><option>Short answer</option></select>
+        </div>
+        <div id="planner-agent-settings" class="agent-settings" hidden>
+          <span>Optional planning details</span>
+          <label for="planner-subjects">Subjects</label><input id="planner-subjects" maxlength="120" placeholder="Maths, Biology">
+          <label for="planner-goal">Study goal</label><input id="planner-goal" maxlength="120" placeholder="Review chapters 1–3">
+          <label for="planner-minutes">Minutes per day</label><input id="planner-minutes" type="number" min="5" max="720" step="5" value="60">
+          <label for="planner-deadline">Deadline (optional)</label><input id="planner-deadline" maxlength="120" placeholder="Friday">
+        </div>
+      </details>
+      <div class="recent-heading"><div class="sidebar-label recent-label">RECENT SESSIONS</div><button class="clear-history" id="clear-history" type="button">Clear all</button></div>
+      <div id="session-list" class="session-list" aria-label="Saved study sessions"></div>
+      <div class="sidebar-bottom"><div class="privacy-mark" aria-hidden="true">◇</div><p>Clear answers, one step at a time.<br><span>Ask about a topic or your study file.</span></p></div>
+    </aside>
+
+    <main id="main" class="main-panel">
+      <header class="topbar"><div class="mobile-brand"><span class="brand-icon" aria-hidden="true">✳</span> Study Assistant</div><span class="topbar-note"><span class="status-dot"></span> Learn at your pace</span><a class="kids-mobile-link" href="#kids-learning">Kids</a><a class="higher-mobile-link" href="#higher-learning">Higher ed</a><a class="discovery-mobile-link" href="#technology-discovery">Tech</a><span class="provider-badge">Tavily-powered answers</span><label class="language-picker" for="answer-language">Answer in <select id="answer-language" aria-label="Choose answer language"><option value="en">English</option><option value="hi">हिन्दी</option><option value="te">తెలుగు</option></select></label><label class="visually-hidden" for="provider-select">Answer provider</label><select id="provider-select" class="provider-select visually-hidden" aria-label="Answer provider"><option value="tavily">Tavily Search + answer</option></select></header>
+      <section class="workspace" aria-labelledby="welcome-title">
+        <div class="welcome" id="welcome">
+          <div class="welcome-mark" aria-hidden="true"><span>✳</span></div>
+          <p class="overline">YOUR STUDY SPACE</p>
+          <h1 id="welcome-title">What would you like<br>to <span>understand?</span></h1>
+          <p class="welcome-copy">Bring a question or study notes.<br>Get a clear answer and the reasoning behind it.</p>
+          <div class="starter-grid" id="quick-start" aria-label="Ideas to get started">
+            <button class="starter-card" data-prompt="Explain the seasons in simple steps"><span class="starter-icon sage" aria-hidden="true">☼</span><span><strong>Understand an idea</strong><small>Break a topic into clear steps</small></span><span class="card-arrow" aria-hidden="true">↗</span></button>
+            <button class="starter-card" data-prompt="Give me a practice question about fractions"><span class="starter-icon peach" aria-hidden="true">✳</span><span><strong>Practice a skill</strong><small>Try a question with a hint</small></span><span class="card-arrow" aria-hidden="true">↗</span></button>
+            <button class="starter-card" data-prompt="Help me make a short study plan"><span class="starter-icon lilac" aria-hidden="true">▤</span><span><strong>Make a small plan</strong><small>Find a pace that feels doable</small></span><span class="card-arrow" aria-hidden="true">↗</span></button>
+          </div>
+        </div>
+        <section class="kids-section" id="kids-learning" aria-labelledby="kids-title">
+          <div class="kids-heading">
+            <p class="overline">FOR YOUNG LEARNERS · STANDARDS 1–10</p>
+            <h2 id="kids-title">A little practice for today</h2>
+            <p>Choose a standard and subject for an age-matched daily question.</p>
+          </div>
+          <div class="kids-controls">
+            <label for="kids-grade">Standard
+              <select id="kids-grade">
+                <option value="1">1st standard</option><option value="2">2nd standard</option>
+                <option value="3">3rd standard</option><option value="4">4th standard</option>
+                <option value="5">5th standard</option><option value="6">6th standard</option>
+                <option value="7">7th standard</option><option value="8">8th standard</option>
+                <option value="9">9th standard</option><option value="10">10th standard</option>
+              </select>
+            </label>
+            <div class="kids-subject-picker" role="group" aria-label="Choose a subject">
+              <span class="kids-subject-label">Subject</span>
+              <div class="kids-subject-options">
+                <button type="button" class="subject-choice selected" data-subject="Math" aria-pressed="true">Maths</button>
+                <button type="button" class="subject-choice" data-subject="Science" aria-pressed="false">Science</button>
+                <button type="button" class="subject-choice" data-subject="Biology" aria-pressed="false">Biology</button>
+              </div>
+            </div>
+            <button class="daily-search-button" id="daily-question-button" type="button">Search today’s question</button>
+          </div>
+          <form class="kids-ask-form" id="kids-question-form">
+            <label for="kids-question">Ask a question for this standard and subject</label>
+            <div class="kids-ask-row">
+              <textarea id="kids-question" rows="2" maxlength="2000" placeholder="Type your question here…"></textarea>
+              <button class="voice-input-button" type="button" data-voice-for="kids-question" aria-label="Ask kids question by voice">🎙</button>
+              <button class="kids-ask-button" id="kids-ask-button" type="submit">Ask</button>
+            </div>
+          </form>
+          <p class="daily-note">Searches Tavily for learning sources. One search per standard and subject is saved each day; API usage may incur charges.</p>
+          <p class="daily-status" id="daily-status" aria-live="polite"></p>
+          <div class="daily-result" id="daily-result" hidden>
+            <p class="daily-result-label" id="daily-result-label"></p>
+            <p class="daily-question" id="daily-question"></p>
+            <button class="voice-read-button" id="daily-read-button" type="button">🔊 Listen to question</button>
+            <div class="learning-images" id="daily-images" hidden></div>
+            <div class="daily-sources-wrap"><span>Learning sources</span><ul class="daily-sources" id="daily-sources"></ul></div>
+          </div>
+        </section>
+        <section class="higher-section" id="higher-learning" aria-labelledby="higher-title">
+          <div class="higher-heading">
+            <p class="overline">FOR COLLEGE AND UNIVERSITY LEARNERS</p>
+            <h2 id="higher-title">Higher education</h2>
+            <p>Ask about a course concept, assignment, or study file. Get a clear answer with the reasoning explained.</p>
+          </div>
+          <div class="higher-controls">
+            <label for="higher-stage">Study level
+              <select id="higher-stage">
+                <option value="Undergraduate">Undergraduate</option>
+                <option value="Postgraduate">Postgraduate</option>
+                <option value="Professional or other higher education">Professional or other</option>
+              </select>
+            </label>
+            <label for="higher-subject">Subject area
+              <select id="higher-subject">
+                <option>Mathematics</option><option>Physics</option><option>Chemistry</option>
+                <option>Biology</option><option>Computer science</option><option>Engineering</option>
+                <option>Business and economics</option><option>Humanities and social sciences</option><option>Other</option>
+              </select>
+            </label>
+          </div>
+          <form class="higher-ask-form" id="higher-question-form">
+            <label for="higher-question">What would you like to understand?</label>
+            <div class="higher-ask-row">
+              <textarea id="higher-question" rows="2" maxlength="2000" placeholder="Ask a higher education question…"></textarea>
+              <button class="voice-input-button" type="button" data-voice-for="higher-question" aria-label="Ask higher education question by voice">🎙</button>
+              <button class="higher-ask-button" id="higher-ask-button" type="submit">Ask</button>
+            </div>
+          </form>
+          <p class="higher-note">Answers are based on your question and any study file you choose to attach.</p>
+          <p class="voice-status" id="higher-status" aria-live="polite"></p>
+        </section>
+        <section class="discovery-hub" id="technology-discovery" aria-labelledby="discovery-title">
+          <div class="discovery-heading">
+            <p class="overline">FRESH WEB SEARCH · UPDATED WHEN YOU SEARCH</p>
+            <h2 id="discovery-title">Technology, research &amp; new ideas</h2>
+            <p>Explore recent reporting, innovations, research papers, and advanced technology in separate searches.</p>
+          </div>
+          <p class="discovery-note">Searches cover the past 7 days. Each search uses Tavily and may use API credits. Sources are available when you choose to open them.</p>
+          <p class="discovery-status" id="discovery-status" aria-live="polite"></p>
+          <div class="discovery-grid" id="discovery-grid"></div>
+        </section>
+        <div class="conversation" id="conversation" aria-label="Study conversation"></div>
+        <p class="visually-hidden" id="live-status" aria-live="polite"></p>
+        <div class="composer-wrap">
+          <form class="composer" id="chat-form">
+            <label class="visually-hidden" for="prompt-input">Ask a study question</label>
+            <textarea id="prompt-input" rows="1" maxlength="2000" placeholder="Ask anything you’re learning…"></textarea>
+            <div class="voice-row"><button class="voice-input-button" type="button" data-voice-for="prompt-input" aria-label="Ask by voice">🎙 Ask by voice</button></div>
+            <p class="voice-status" id="main-voice-status" aria-live="polite"></p>
+            <div class="attachment-row"><input class="visually-hidden" id="study-file" type="file" accept=".txt,.md,.csv,.json,text/plain,text/markdown,text/csv,application/json"><button class="attach-button" id="attach-file" type="button" aria-controls="study-file">＋ Add study file</button><span class="file-status" id="file-status" aria-live="polite">TXT, MD, CSV, or JSON · up to 8,000 characters</span><button class="remove-file" id="remove-file" type="button" hidden>Remove</button></div>
+            <div class="composer-bottom"><span class="composer-hint" id="composer-hint">A question is a good place to start · 2000 characters max</span><button class="send-button" type="submit" aria-label="Send question">↑</button></div>
+          </form>
+          <p class="disclaimer">Tutor and quiz answers use Tavily; study plans use Groq. Attached study material is sent only when you confirm. API usage may incur charges.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

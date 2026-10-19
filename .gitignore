@@ -1,0 +1,12 @@
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+
+.uv-cache/
+.python-runtime/
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
